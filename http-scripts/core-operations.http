@@ -1,0 +1,172 @@
+# Generic functionality showcased
+# - login: Use the device login flow to act as yourself on Azure
+# - newrg: Creates a new resource group
+# Tenant operations showcased
+# - newTenant: Creates a new tenant
+# - getTenant: Retrieves information about a specific tenant
+# - updateTenant: Updates the properties of a specific tenant
+# - listTenantrg: Lists all tenants within a specific resource group
+# - deleteTenant: Deletes a specific tenant
+# Guest Usage operations showcased
+# - newGuestUsage: Creates a new guest usage
+# - getGuestUsage: Retrieves information about a specific guest usage
+# - updateGuestUsage: Updates the properties of a specific guest usage
+# - listGuestUsages: Lists all guest usages within a specific resource group
+# - deleteGuestUsage: Deletes a specific guest usage
+
+# Using the extension humao.rest-client transpiling these requests into
+# different languages is easy. Do make sure to check out the docs and see
+# other functionality the extension offers if you want to expand this.
+
+
+# Values to login with - should be an app reg 
+# - user_impersonation for the azure management plane APIs
+# - allow public client logins
+
+
+# Login to get an auth token
+# @name loginCode
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/devicecode
+Content-Type: application/x-www-form-urlencoded
+
+scope=https%3A%2F%2Fmanagement.azure.com%2Fuser_impersonation
+&client_id={{clientId}}
+
+###
+
+# Use the device login from the above's response and login on browser 
+# @name loginGetToken
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code
+&client_id={{clientId}}
+&device_code={{loginCode.response.body.device_code}}
+
+###
+
+@authToken={{loginGetToken.response.body.access_token}}
+# Create resource group if not exists
+# @name newrg
+PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}?api-version=2021-04-01
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "location": "centralus"
+}
+
+###
+
+# Create tenant
+# This takes a substantial amount of time - can recommend going for
+# coffee instead of hanging around!
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/create?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name newTenant
+PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantName}}?api-version=2023-05-17-preview
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "location": "unitedstates",
+  "sku": {
+    "name": "Standard",
+    "tier": "A0"
+  },
+  "properties": {
+    "createTenantProperties": {
+      "displayName": "Testing CIAM processes",
+      "countryCode": "US"
+    }
+  }
+}
+
+###
+@newTenantId = {{newTenant.response.body.id}}
+
+# Get tenant
+# Note the creation of the tenant can take a little while!
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/get?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name getTenant
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantId}}?api-version=2023-05-17-preview
+Authorization: Bearer  {{authToken}}
+Content-Type: application/json
+
+###
+
+# Update tenant
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/update?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name updateTenant
+PATCH https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantId}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "sku": {
+    "name": "Standard",
+    "tier": "A0"
+  }
+}
+
+###
+
+# List tenants in rg
+# NB there is one for listing at the sub level but better to be scoped where possible
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/list-by-resource-group?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name listTenantrg
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# Delete tenant
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/delete?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name deleteTenant
+DELETE https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantId}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+###
+
+# Associate a subscription for Guest Usages
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/create?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name associateGuestUsage
+PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# Get guest usage
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/get?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name getGuestUsage
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### 
+
+# Update guest usage
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/update?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name updateGuestUsage
+PATCH https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# List guest usages in rg
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/list-by-resource-group?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name listGuestUsagesrg
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# Delete guest usage
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/delete?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name deleteGuestUsage
+DELETE https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
