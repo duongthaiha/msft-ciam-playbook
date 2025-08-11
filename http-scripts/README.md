@@ -37,12 +37,6 @@ Guest Usage operations showcased:
 
 
 
-## Notes
-
-- Ensure that you handle the responses appropriately and check for any errors returned by the API.
-- Refer to the [CIAM Tenants API documentation](https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants?view=rest-activedirectory-2023-05-17-preview) for detailed information on each operation and required parameters.
-- Using the extension humao.rest-client transpiling these requests into different languages is easy. Do make sure to check out the docs and see other functionality the extension offers if you want to expand this.
-
 ## Ways to add variables
 As you don't want to have hardcoded values about your azure environment in your source control environment, whilst the addition of the values at the top of the script with allow you to test quickly, I recommend either a `http-client.env.json` file or if you're using the recommended extension, adding the values to the `$shared` (or other) environment in the settings for the extension.
 
@@ -83,3 +77,11 @@ You can add the variables to the `$shared` environment in the settings for the e
     }
 }
 ```
+
+
+## Notes
+
+- If you're unfamiliar with HTTP files, read [HTTP files](https://learn.microsoft.com/en-us/aspnet/core/test/http-files?view=aspnetcore-9.0).
+- Ensure that you handle the responses appropriately and check for any errors returned by the API.
+- Refer to the [CIAM Tenants API documentation](https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants?view=rest-activedirectory-2023-05-17-preview) for detailed information on each operation and required parameters.
+- Using the extension humao.rest-client transpiling these requests into different languages is easy. Do make sure to check out the docs and see other functionality the extension offers if you want to expand this.
