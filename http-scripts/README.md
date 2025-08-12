@@ -22,6 +22,7 @@ Generic functionality showcased:
 - newrg: Creates a new resource group
 
 [Tenant operations](tenants.http):
+- checkName: Check if a tenant name exists before you create a tenant
 - newTenant: Creates a new tenant, expect this to take at least 10 mins
 - getTenant: Retrieves information about a specific tenant
 - updateTenant: Updates the properties of a specific tenant
