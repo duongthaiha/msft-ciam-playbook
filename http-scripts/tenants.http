@@ -1,27 +1,32 @@
-# Generic functionality showcased
-# - login: Use the device login flow to act as yourself on Azure
-# - newrg: Creates a new resource group
+# Microsoft Entra External Identities Tenants
+# Status: Tested
+
 # Tenant operations showcased
 # - newTenant: Creates a new tenant
+#   - Async process so has two steps, the send and an update which includes
+#     some error messages
 # - getTenant: Retrieves information about a specific tenant
 # - updateTenant: Updates the properties of a specific tenant
 # - listTenantrg: Lists all tenants within a specific resource group
 # - deleteTenant: Deletes a specific tenant
-# Guest Usage operations showcased
-# - newGuestUsage: Creates a new guest usage
-# - getGuestUsage: Retrieves information about a specific guest usage
-# - updateGuestUsage: Updates the properties of a specific guest usage
-# - listGuestUsages: Lists all guest usages within a specific resource group
-# - deleteGuestUsage: Deletes a specific guest usage
 
-# Using the extension humao.rest-client transpiling these requests into
-# different languages is easy. Do make sure to check out the docs and see
-# other functionality the extension offers if you want to expand this.
+# Prerequisites
+# - Subscription
+# - Contributor or narrower role permission to operate on these resource kinds
+# - An application registration is required with key configuration
+#   - user_impersonation for the azure management plane APIs
+#   - allow public client logins
 
+# Generic functionality required
+# - login: Use the device login flow to act as yourself on Azure
+# - newrg: Creates a new resource group
+#     - It's good to keep stuff in a single RG for testing purposes
 
-# Values to login with - should be an app reg 
-# - user_impersonation for the azure management plane APIs
-# - allow public client logins
+# Developer Recommendations
+# - Using the extension humao.rest-client enables transpiling these requests
+#   into different languages
+# - Do make sure to check out the docs for the extension to see if other
+#   functionality is useful to you
 
 
 # Login to get an auth token
@@ -137,46 +142,3 @@ DELETE https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGro
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 ###
-
-# Associate a subscription for Guest Usages
-# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/create?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
-# @name associateGuestUsage
-PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
-Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-###
-
-# Get guest usage
-# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/get?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
-# @name getGuestUsage
-GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
-Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-### 
-
-# Update guest usage
-# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/update?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
-# @name updateGuestUsage
-PATCH https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
-Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-###
-
-# List guest usages in rg
-# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/list-by-resource-group?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
-# @name listGuestUsagesrg
-GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages?api-version=2023-05-17-preview
-Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-###
-
-# Delete guest usage
-# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/delete?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
-# @name deleteGuestUsage
-DELETE https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{resourceName}}?api-version=2023-05-17-preview
-Authorization: Bearer {{authToken}}
-Content-Type: application/json

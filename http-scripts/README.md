@@ -21,27 +21,25 @@ Generic functionality showcased:
 - login: Use the device login flow to act as yourself on Azure
 - newrg: Creates a new resource group
 
-Tenant operations showcased:
+[Tenant operations](tenants.http):
 - newTenant: Creates a new tenant, expect this to take at least 10 mins
 - getTenant: Retrieves information about a specific tenant
 - updateTenant: Updates the properties of a specific tenant
 - listTenantrg: Lists all tenants within a specific resource group
 - deleteTenant: Deletes a specific tenant
 
-Guest Usage operations showcased:
+[Guest usages](guest-usages.http):
 - newGuestUsage: Creates a new guest usage
 - getGuestUsage: Retrieves information about a specific guest usage
 - updateGuestUsage: Updates the properties of a specific guest usage
 - listGuestUsagesrg: Lists all guest usages within a specific resource group
 - deleteGuestUsage: Deletes a specific guest usage
 
-
-
 ## Ways to add variables
 As you don't want to have hardcoded values about your azure environment in your source control environment, whilst the addition of the values at the top of the script with allow you to test quickly, I recommend either a `http-client.env.json` file or if you're using the recommended extension, adding the values to the `$shared` (or other) environment in the settings for the extension.
 
 ### At the top of the script
-You can simply create these variables in the top of the `core-operations.http` file:
+You can simply create these variables in the top of the file you want to work with:
 ```http
 @tenantId=<your-tenant-id>
 @clientId=<your-client-id>
@@ -51,7 +49,7 @@ You can simply create these variables in the top of the `core-operations.http` f
 ```
 
 ### In `http-client.env.json`
-Make a file in the same directory (or a parent) of the `core-operations.http` file:
+Make a file in the same directory (or a parent) of the file you want to work with:
 ```json
 {
     "dev": {
@@ -84,4 +82,5 @@ You can add the variables to the `$shared` environment in the settings for the e
 - If you're unfamiliar with HTTP files, read [HTTP files](https://learn.microsoft.com/en-us/aspnet/core/test/http-files?view=aspnetcore-9.0).
 - Ensure that you handle the responses appropriately and check for any errors returned by the API.
 - Refer to the [CIAM Tenants API documentation](https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants?view=rest-activedirectory-2023-05-17-preview) for detailed information on each operation and required parameters.
-- Using the extension humao.rest-client transpiling these requests into different languages is easy. Do make sure to check out the docs and see other functionality the extension offers if you want to expand this.
+- Using the extension humao.rest-client enables transpiling these requests into different languages
+- Do make sure to check out the docs for the extension to see if other functionality is useful to you

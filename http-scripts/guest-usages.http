@@ -1,0 +1,89 @@
+# Guest usage
+# Status: WIP
+
+# Why you might need this:
+# "External tenants don't have subscription management capabilities, and therefore, external tenants must be linked to subscriptions, 
+# which are owned by Microsoft Entra workforce tenants."
+# https://learn.microsoft.com/en-gb/entra/external-id/external-identities-pricing#link-an-external-tenant-to-a-subscription
+
+# Guest Usage operations showcased
+# - newGuestUsage: Creates a new guest usage
+# - getGuestUsage: Retrieves information about a specific guest usage
+# - updateGuestUsage: Updates the properties of a specific guest usage
+# - listGuestUsages: Lists all guest usages within a specific resource group
+# - deleteGuestUsage: Deletes a specific guest usage
+
+# Prerequisites
+# - Subscription
+# - Entra External tenant
+# - Contributor or administrator role permission
+# - An application registration is required with key configuration
+#   - user_impersonation for the azure management plane APIs
+#   - allow public client logins
+
+# Generic functionality required
+# - login: Use the device login flow to act as yourself on Azure
+
+# Developer Recommendations
+# - Using the extension humao.rest-client enables transpiling these requests
+#   into different languages
+# - Do make sure to check out the docs for the extension to see if other
+#   functionality is useful to you
+
+
+# Login to get an auth token
+# @name loginCode
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/devicecode
+Content-Type: application/x-www-form-urlencoded
+
+scope=https%3A%2F%2Fmanagement.azure.com%2Fuser_impersonation
+&client_id={{clientId}}
+
+###
+
+# Use the device login from the above's response and login on browser 
+# @name loginGetToken
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code
+&client_id={{clientId}}
+&device_code={{loginCode.response.body.device_code}}
+
+###
+
+@authToken={{loginGetToken.response.body.access_token}}
+
+# Get guest usage
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/get?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name getGuestUsage
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{newTenantName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### 
+
+# Update guest usage
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/update?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name updateGuestUsage
+PATCH https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{newTenantName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# List guest usages in rg
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/list-by-resource-group?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name listGuestUsagesrg
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# Delete guest usage
+# https://learn.microsoft.com/en-us/rest/api/activedirectory/guest-usages/delete?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
+# @name deleteGuestUsage
+DELETE https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/guestUsages/{{newTenantName}}?api-version=2023-05-17-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
