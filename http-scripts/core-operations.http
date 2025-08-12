@@ -59,8 +59,10 @@ Content-Type: application/json
 ###
 
 # Create tenant
-# This takes a substantial amount of time - can recommend going for
-# coffee instead of hanging around!
+# The domain should be unique and not already in use, ending in onmicrosoft.com!
+# You need to run the next script for checking the async logs to see if 
+# this actually passed validation of domain name etc, otherwise you'll just see 
+# a broken tenant forever in the portal with no obvious issues beyond no guid
 # https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/create?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
 # @name newTenant
 PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantName}}?api-version=2023-05-17-preview
@@ -84,11 +86,20 @@ Authorization: Bearer {{authToken}}
 ###
 @newTenantId = {{newTenant.response.body.id}}
 
+# Check new tenant provisioning status
+# You may need to run this multiple times to check
+# @name checkTenantProvisioningStatus
+GET {{newTenant.response.headers.Azure-AsyncOperation}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
 # Get tenant
 # Note the creation of the tenant can take a little while!
 # https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/get?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
 # @name getTenant
-GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantId}}?api-version=2023-05-17-preview
+GET https://management.azure.com/{{newTenantId}}?api-version=2023-05-17-preview
 Authorization: Bearer  {{authToken}}
 Content-Type: application/json
 
@@ -97,14 +108,13 @@ Content-Type: application/json
 # Update tenant
 # https://learn.microsoft.com/en-us/rest/api/activedirectory/ciam-tenants/update?view=rest-activedirectory-2023-05-17-preview&tabs=HTTP
 # @name updateTenant
-PATCH https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.AzureActiveDirectory/ciamDirectories/{{newTenantId}}?api-version=2023-05-17-preview
+PATCH https://management.azure.com/{{newTenantId}}?api-version=2023-05-17-preview
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "sku": {
-    "name": "Standard",
-    "tier": "A0"
+  "tags":{
+    "purpose":"Testing"
   }
 }
 
