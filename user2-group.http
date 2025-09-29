@@ -19,16 +19,8 @@
 # Variables needed:
 # - externalTenantId: Your Entra External Identity tenant ID
 # - clientId: Your application (client) ID
-# - username: User email/UPN (for password flow)
-# - password: User password (for password flow)
 # - userIdToAddToGroup: Object ID of user to add to group
 # - groupId: Object ID of the group to add user to
-
-# Developer Recommendations:
-# - Using the extension humao.rest-client enables transpiling these requests
-#   into different languages
-# - For production scenarios, consider using device code flow instead of password flow
-# - Always use least privilege principle when managing groups
 
 ###
 @externalTenantId=8cc0f88a-5ac1-437e-a89d-797ed08b80b6
@@ -56,20 +48,6 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=urn:ietf:params:oauth:grant-type:device_code
 &client_id={{clientId}}
 &device_code={{deviceCodeLogin.response.body.device_code}}
-
-###
-
-# Option 2: Resource Owner Password Credentials Flow (Less secure, use with caution)
-# Direct login with username and password
-# @name passwordLogin
-POST https://login.microsoftonline.com/{{externalTenantId}}/oauth2/v2.0/token
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=password
-&client_id={{clientId}}
-&username={{username}}
-&password={{password}}
-&scope=https%3A%2F%2Fgraph.microsoft.com%2FUser.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroupMember.ReadWrite.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroup.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FDirectory.Read.All
 
 ###
 
