@@ -39,10 +39,11 @@ Generic functionality showcased:
 [Graph API operations](graph-core.http):
 - loginWithCredentials: User credential-based login to Entra External Identity (device code or password flow)
 - listUsers: List users in the directory using Graph API
-- assignRole: Assign a directory role to a user
+- addUserToGroup: Add a user to a group
 - getUser: Get details of a specific user
-- listDirectoryRoles: List available directory roles
+- listGroups: List available groups
 - createUser: Create a new user in the directory
+- createGroup: Create a new group in the directory
 - updateUser: Update user properties
 - getCurrentUser: Get current authenticated user's profile
 
@@ -67,7 +68,7 @@ The Graph API module enables user authentication and Graph API operations specif
 - Entra External Identity tenant
 - User account with appropriate permissions (User Administrator or Global Administrator role)
 - Application registered in Entra External Identity with:
-  - API permissions: `User.Read.All`, `RoleManagement.ReadWrite.Directory`, `Directory.Read.All`
+  - API permissions: `User.Read.All`, `GroupMember.ReadWrite.All`, `Group.Read.All`, `Directory.Read.All`
   - Public client flows enabled (for device code flow)
   - For ROPC flow: Enable "Allow public client flows" and configure Resource Owner Password Credentials grant
 
@@ -75,7 +76,7 @@ The Graph API module enables user authentication and Graph API operations specif
 
 - **Authentication**: Device code flow or username/password authentication
 - **User Management**: List, get, create, and update users
-- **Role Management**: List directory roles, assign roles to users, remove role assignments
+- **Group Management**: List groups, add users to groups, remove users from groups
 - **Profile Operations**: Get current user profile and application information
 
 ## Ways to add variables
@@ -96,8 +97,8 @@ You can simply create these variables in the top of the file you want to work wi
 @clientId=<your-app-client-id>
 @username=<your-username>
 @password=<your-password>
-@userIdToAssignRole=<user-object-id>
-@roleDefinitionId=<role-object-id>
+@userIdToAddToGroup=<user-object-id>
+@groupId=<group-object-id>
 @userIdToGetDetails=<user-object-id>
 @userIdToUpdate=<user-object-id>
 @externalTenantDomain=<your-tenant-domain.onmicrosoft.com>
@@ -119,8 +120,8 @@ Make a file in the same directory (or a parent) of the file you want to work wit
         "externalTenantId": "<your-entra-external-identity-tenant-id>",
         "username": "<your-username>",
         "password": "<your-password>",
-        "userIdToAssignRole": "<user-object-id>",
-        "roleDefinitionId": "<role-object-id>",
+        "userIdToAddToGroup": "<user-object-id>",
+        "groupId": "<group-object-id>",
         "userIdToGetDetails": "<user-object-id>",
         "userIdToUpdate": "<user-object-id>",
         "externalTenantDomain": "<your-tenant-domain.onmicrosoft.com>"

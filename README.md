@@ -8,4 +8,4 @@ This project contains a set of HTTP scripts for interacting with the CIAM Tenant
 ### Available modules:
 - **tenants.http**: Azure Management API operations for CIAM tenant lifecycle management
 - **guest-usages.http**: Guest usage operations for linking external tenants to subscriptions  
-- **graph-core.http**: Microsoft Graph API operations for user authentication, user management, and role assignments in Entra External Identity
+- **graph-core.http**: Microsoft Graph API operations for user authentication, user management, and group assignments in Entra External Identity
