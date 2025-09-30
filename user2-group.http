@@ -1,5 +1,7 @@
 # Microsoft Graph API Operations for Entra External Identity
 # Status: New
+# 
+# Variables: See variables.http file for configuration
 
 # Graph API operations showcased:
 # - loginWithCredentials: User credential-based login to Entra External Identity
@@ -18,16 +20,12 @@
 
 # Variables needed:
 # - externalTenantId: Your Entra External Identity tenant ID
-# - clientId: Your application (client) ID
+# - clientId: Your application (client) ID  
 # - userIdToAddToGroup: Object ID of user to add to group
 # - groupId: Object ID of the group to add user to
+# All variables are defined in variables.http
 
 ###
-@externalTenantId=8cc0f88a-5ac1-437e-a89d-797ed08b80b6
-@clientId=ac4ced19-09fd-4ab1-96a8-3fbdd9685fcb
-@groupId=c9cd00aa-2559-49c4-8e0c-9578b1c968f8
-
-@userIdToAddToGroup=697fb759-31d3-4bc1-9d8b-b907a47deaf0
 # Option 1: Device Code Flow (Recommended for security)
 # Step 1: Initiate device code flow
 # @name deviceCodeLogin

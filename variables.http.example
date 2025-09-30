@@ -1,0 +1,22 @@
+# Variables for Microsoft Graph API Operations - Entra External Identity
+# This file contains environment variables for REST Client extension
+
+# Tenant Configuration
+@externalTenantId=xxx
+
+# Application Configuration
+@clientId=xxx
+
+# Group and User IDs
+@groupId=xxx
+@userIdToAddToGroup=xxx
+
+# Optional variables (uncomment and set as needed)
+# @userIdToGetDetails=your-user-id-here
+# @userIdToUpdate=your-user-id-here
+# @externalTenantDomain=your-domain.onmicrosoft.com
+
+# Authentication tokens (set automatically by responses)
+# @accessToken will be set by deviceCodeToken or passwordLogin response
+# @deviceCode will be set by deviceCodeLogin response
+# @refreshToken will be set by token responses
