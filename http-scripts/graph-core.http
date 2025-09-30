@@ -1,0 +1,223 @@
+# Microsoft Graph API Operations for Entra External Identity
+# Status: New
+
+# Graph API operations showcased:
+# - loginWithCredentials: User credential-based login to Entra External Identity
+# - listUsers: List users in the directory using Graph API
+# - assignUserToGroup: Assign a user to a group
+# - getUser: Get details of a specific user
+# - listGroups: List available groups
+
+# Prerequisites:
+# - Entra External Identity tenant
+# - User account with appropriate permissions (e.g., User Administrator, Global Administrator)
+# - Client application registered in Entra External Identity with:
+#   - API permissions: User.Read.All, GroupMember.ReadWrite.All, Group.Read.All
+#   - Public client flows enabled (for device code flow)
+# - OR use username/password flow (requires app configured for Resource Owner Password Credentials)
+
+# Variables needed:
+# - externalTenantId: Your Entra External Identity tenant ID
+# - clientId: Your application (client) ID
+# - username: User email/UPN (for password flow)
+# - password: User password (for password flow)
+# - userIdToAddToGroup: Object ID of user to add to group
+# - groupId: Object ID of the group to add user to
+
+# Developer Recommendations:
+# - Using the extension humao.rest-client enables transpiling these requests
+#   into different languages
+# - For production scenarios, consider using device code flow instead of password flow
+# - Always use least privilege principle when managing groups
+
+###
+
+# Option 1: Device Code Flow (Recommended for security)
+# Step 1: Initiate device code flow
+# @name deviceCodeLogin
+POST https://login.microsoftonline.com/{{externalTenantId}}/oauth2/v2.0/devicecode
+Content-Type: application/x-www-form-urlencoded
+
+scope=https%3A%2F%2Fgraph.microsoft.com%2FUser.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroupMember.ReadWrite.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroup.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FDirectory.Read.All
+&client_id={{clientId}}
+
+###
+
+# Step 2: Complete device code flow after user authentication
+# Use the device code from above response and authenticate in browser
+# @name deviceCodeToken
+POST https://login.microsoftonline.com/{{externalTenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code
+&client_id={{clientId}}
+&device_code={{deviceCodeLogin.response.body.device_code}}
+
+###
+
+# Option 2: Resource Owner Password Credentials Flow (Less secure, use with caution)
+# Direct login with username and password
+# @name passwordLogin
+POST https://login.microsoftonline.com/{{externalTenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+&client_id={{clientId}}
+&username={{username}}
+&password={{password}}
+&scope=https%3A%2F%2Fgraph.microsoft.com%2FUser.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroupMember.ReadWrite.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroup.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FDirectory.Read.All
+
+###
+
+# Set access token (use either deviceCodeToken or passwordLogin response)
+@accessToken = {{deviceCodeToken.response.body.access_token}}
+# Alternative: @accessToken = {{passwordLogin.response.body.access_token}}
+
+###
+
+# List all users in the directory
+# https://learn.microsoft.com/en-us/graph/api/user-list
+# @name listUsers
+GET https://graph.microsoft.com/v1.0/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# List users with specific properties
+# @name listUsersWithProperties
+GET https://graph.microsoft.com/v1.0/users?$select=id,displayName,userPrincipalName,mail,accountEnabled&$orderby=displayName
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# Get details of a specific user
+# @name getUser
+GET https://graph.microsoft.com/v1.0/users/{{userIdToGetDetails}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# List all groups in the directory
+# https://learn.microsoft.com/en-us/graph/api/group-list
+# @name listGroups
+GET https://graph.microsoft.com/v1.0/groups
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# List groups with specific properties
+# @name listGroupsWithProperties
+GET https://graph.microsoft.com/v1.0/groups?$select=id,displayName,description,mailEnabled,securityEnabled&$orderby=displayName
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# Get members of a specific group
+# @name getGroupMembers
+GET https://graph.microsoft.com/v1.0/groups/{{groupId}}/members
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# Add a user to a group
+# https://learn.microsoft.com/en-us/graph/api/group-post-members
+# @name addUserToGroup
+POST https://graph.microsoft.com/v1.0/groups/{{groupId}}/members/$ref
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "@odata.id": "https://graph.microsoft.com/v1.0/users/{{userIdToAddToGroup}}"
+}
+
+###
+
+# Remove a user from a group
+# @name removeUserFromGroup
+DELETE https://graph.microsoft.com/v1.0/groups/{{groupId}}/members/{{userIdToAddToGroup}}/$ref
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# Create a new user (requires User Administrator or Global Administrator role)
+# @name createUser
+POST https://graph.microsoft.com/v1.0/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "accountEnabled": true,
+  "displayName": "New Test User",
+  "mailNickname": "newtestuser",
+  "userPrincipalName": "newtestuser@{{externalTenantDomain}}",
+  "passwordProfile": {
+    "forceChangePasswordNextSignIn": true,
+    "password": "TempPassword123!"
+  }
+}
+
+###
+
+# Create a new group (requires User Administrator or Global Administrator role)
+# @name createGroup
+POST https://graph.microsoft.com/v1.0/groups
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "displayName": "Test Group",
+  "mailNickname": "testgroup",
+  "description": "A test group for demonstration purposes",
+  "securityEnabled": true,
+  "mailEnabled": false
+}
+
+###
+
+# Update user properties
+# @name updateUser
+PATCH https://graph.microsoft.com/v1.0/users/{{userIdToUpdate}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "displayName": "Updated Display Name",
+  "jobTitle": "Senior Administrator"
+}
+
+###
+
+# Get current user's profile (who am I?)
+# @name getCurrentUser
+GET https://graph.microsoft.com/v1.0/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# List applications in the directory
+# @name listApplications
+GET https://graph.microsoft.com/v1.0/applications?$select=id,displayName,appId
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
+
+# Check token expiration and refresh if needed
+# @name refreshToken
+POST https://login.microsoftonline.com/{{externalTenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token
+&client_id={{clientId}}
+&refresh_token={{deviceCodeToken.response.body.refresh_token}}
+&scope=https%3A%2F%2Fgraph.microsoft.com%2FUser.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroupMember.ReadWrite.All%20https%3A%2F%2Fgraph.microsoft.com%2FGroup.Read.All%20https%3A%2F%2Fgraph.microsoft.com%2FDirectory.Read.All
+
+###
