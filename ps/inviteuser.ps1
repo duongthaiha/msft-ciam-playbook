@@ -28,12 +28,12 @@
 
 param(
 	[Parameter(Mandatory)][string]$CsvPath,
-	[Parameter()][string]$TenantId= '8cc0f88a-5ac1-437e-a89d-797ed08b80b6',
+	[Parameter()][string]$TenantId= 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 	[Parameter()][string]$RedirectUrl = 'https://myapplications.microsoft.com/',
 	[Parameter()][string]$CustomMessage = 'Hello. You are invited to collaborate.',
 	[Parameter()][string]$LogPath = "$(Split-Path -Parent $MyInvocation.MyCommand.Path)\\invite-log-$(Get-Date -Format yyyyMMdd-HHmmss).csv",
 	[Parameter()][switch]$SendInvitationMessage = $true,
-	[Parameter()][string]$AddToGroupObjectId = 'c9cd00aa-2559-49c4-8e0c-9578b1c968f8',
+	[Parameter()][string]$AddToGroupObjectId = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 	[Parameter()][switch]$SkipExisting,
 	[Parameter()][int]$ThrottleDelaySeconds = 0
 )
