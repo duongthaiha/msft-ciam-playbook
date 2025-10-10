@@ -58,3 +58,50 @@ Remove a test guest (cleanup):
 ```
 Remove-MgUser -UserId <objectId>
 ```
+
+## Bulk member user creation (PowerShell)
+
+Script: `ps/createuser.ps1`
+
+Creates internal (member) users in bulk from a CSV. Required columns:
+
+```
+UserPrincipalName,DisplayName
+```
+
+Optional columns: `MailNickname,Password,GivenName,Surname,UsageLocation,JobTitle,Department,ForceChangePassword,AccountEnabled,AddToGroupObjectId`
+
+If `Password` is blank a complex temporary password is generated and users are forced to change it at next sign in (unless `ForceChangePassword` = N/False). A per‑row `AddToGroupObjectId` can override the global `-AddToGroupObjectId` parameter.
+
+Example CSV row (see `ps/usercreation.csv.example`):
+
+```
+alex.jones@contoso.onmicrosoft.com,Alex Jones,alexj,,Alex,Jones,US,Security Analyst,Security,Y,True,
+```
+
+### Usage examples
+Create users (generating passwords where not supplied):
+
+```
+pwsh ./ps/createuser.ps1 -CsvPath ./ps/usercreation.csv -TenantId "contoso.onmicrosoft.com"
+```
+
+Dry run (validate only, no creation) and show intended actions:
+
+```
+pwsh ./ps/createuser.ps1 -CsvPath ./ps/usercreation.csv -DryRun
+```
+
+Create users, skip existing, and add all to a group:
+
+```
+pwsh ./ps/createuser.ps1 -CsvPath ./ps/usercreation.csv -SkipExisting -AddToGroupObjectId <groupObjectId>
+```
+
+### Output & logging
+Produces a log CSV with: `UserPrincipalName,DisplayName,Status,UserId,AddedToGroup,TempPassword,Error`.
+`TempPassword` is only populated for generated passwords—store it securely and rotate after first sign‑in.
+
+### Security notes
+Avoid storing plaintext passwords in source control. Prefer leaving `Password` blank to let the script generate temporary credentials, then distribute via a secure channel.
+
